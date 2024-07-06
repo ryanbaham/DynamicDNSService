@@ -38,7 +38,7 @@
                     _logger.LogError(ex, "Error checking IP");
                 }
 
-                await Task.Delay(TimeSpan.FromSeconds(3), stoppingToken);
+                await Task.Delay(TimeSpan.FromMinutes(5), stoppingToken);
             }
         }
     }
