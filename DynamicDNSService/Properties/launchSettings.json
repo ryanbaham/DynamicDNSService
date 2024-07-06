@@ -1,0 +1,23 @@
+{
+  "profiles": {
+    "DynamicDNSService": {
+      "commandName": "Project",
+      "environmentVariables": {
+        "DOTNET_ENVIRONMENT": "Development",
+        "DNSIMPLE_API_KEY": "dnsimple_a_wWbm2Kw4qtd99u83xrEKwMx9y1cLOQvu",
+        "DNSIMPLE_ZONE_NAME": "nottheband.com",
+        "DNSIMPLE_ZONE_RECORD_NAME": "remcon"
+      },
+      "dotnetRunMessages": true
+    },
+    "Container (Dockerfile)": {
+      "commandName": "Docker",
+      "environmentVariables": {
+        "DNSIMPLE_API_KEY": "dnsimple_a_wWbm2Kw4qtd99u83xrEKwMx9y1cLOQvu",
+        "DNSIMPLE_ZONE_NAME": "nottheband.com",
+        "DNSIMPLE_ZONE_RECORD_NAME": "remcon"
+      }
+    }
+  },
+  "$schema": "http://json.schemastore.org/launchsettings.json"
+}
