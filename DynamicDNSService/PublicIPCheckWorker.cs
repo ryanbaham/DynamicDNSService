@@ -1,6 +1,4 @@
-﻿using System.Net.Http.Json;
-
-namespace DynamicDNSService
+﻿namespace DynamicDNSService
 {
     public class PublicIPCheckWorker : BackgroundService
     {
