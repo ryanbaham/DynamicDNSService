@@ -48,8 +48,16 @@ namespace DynamicDNSService
                     try
                     {
                         GetCurrentZoneRecord();
-                        UpdateZoneRecord(newIp);
-                        //_logger.LogInformation($"DNS record updated with new IP: {newIp} @ {DateTime.UtcNow}");
+                        
+                        if (newIp != null && _currentZoneRecord.Content != newIp) 
+                        {
+                            UpdateZoneRecord(newIp);
+                        }
+                        else
+                        {
+                            _logger.LogWarning($"IP from Channel ({newIp}) is null or equals existing zone record value ({_currentZoneRecord.Content}).");
+                        }
+                        
                     }
                     catch (Exception ex)
                     {
@@ -62,7 +70,8 @@ namespace DynamicDNSService
         private void GetCurrentZoneRecord()
         {
             _currentZoneRecord =  _dnsimpleClient.Zones.GetZoneRecord(_accountId, _zoneID, _zoneRecordID).Data;
-            _logger.LogInformation($"Zone Record {_currentZoneRecord.Name} has following configuration:{Environment.NewLine}"+JsonSerializer.Serialize(_currentZoneRecord, new JsonSerializerOptions { WriteIndented = true }));
+            _logger.LogInformation($"Zone Record {_currentZoneRecord.Name} has following configuration:{Environment.NewLine}"
+                                    +JsonSerializer.Serialize(_currentZoneRecord, new JsonSerializerOptions { WriteIndented = true }));
         }
 
         private void UpdateZoneRecord(string ip)
@@ -72,11 +81,6 @@ namespace DynamicDNSService
             recordToUpdate.Regions = null;
             var response = _dnsimpleClient.Zones.UpdateZoneRecord(_accountId, _zoneID, _zoneRecordID, recordToUpdate);
             _logger.LogWarning($"Updated Zone Record {response.Data.Name} with IP {ip}.");
-            //var updatedRecord = new ZoneRecord() { Name = "", con };
-            //_logger.LogInformation($"DNS Record Updated! ({ip})");
-            // Implement your DNS update logic here
-            // Use _configuration to get DNSimple settings
-            //_logger.LogInformation(_apiKey);
             
         }
     }

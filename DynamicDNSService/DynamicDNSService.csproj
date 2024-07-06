@@ -1,22 +1,29 @@
 <Project Sdk="Microsoft.NET.Sdk.Worker">
 
-  <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
-    <Nullable>enable</Nullable>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <UserSecretsId>dotnet-DynamicDNSService-7d71bef0-f0a2-4701-b45e-d1c81f25ec4f</UserSecretsId>
-    <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
-  </PropertyGroup>
+	<PropertyGroup>
+		<TargetFramework>net8.0</TargetFramework>
+		<Nullable>enable</Nullable>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<UserSecretsId>dotnet-DynamicDNSService-7d71bef0-f0a2-4701-b45e-d1c81f25ec4f</UserSecretsId>
+		<DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+		<IsPublishable>true</IsPublishable>
+		<EnableSdkContainerSupport>true</EnableSdkContainerSupport>
+		<ContainerRepository>dynamicdnsservice</ContainerRepository>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <PackageReference Include="DNSimple" Version="0.18.1" />
-    <PackageReference Include="Microsoft.Extensions.Hosting" Version="8.0.0" />
-    <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.20.1" />
-  </ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="DNSimple" Version="0.18.1" />
+		<PackageReference Include="Microsoft.Extensions.Hosting" Version="8.0.0" />
+		<PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.20.1" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <Using Include="System.Net.Http.Json" />
-    <Using Include="System.Text.Json" />
-    <Using Include="System.Threading.Channels" />
-  </ItemGroup>
+	<ItemGroup>
+		<Using Include="System.Net.Http.Json" />
+		<Using Include="System.Text.Json" />
+		<Using Include="System.Threading.Channels" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<Folder Include="Properties\PublishProfiles\" />
+	</ItemGroup>
 </Project>
