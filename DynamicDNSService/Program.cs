@@ -1,3 +1,4 @@
+using Figgle;
 using System.Threading.Channels;
 
 namespace DynamicDNSService
@@ -6,7 +7,9 @@ namespace DynamicDNSService
     {
         public static void Main(string[] args)
         {
-            Console.WriteLine("<----- Dynamic DNS Service is Starting ----->");
+
+            Console.WriteLine(FiggleFonts.Standard.Render("Dynamic DNS Service"));
+            Console.WriteLine("<----- Service is Starting ----->");
             var builder = Host.CreateApplicationBuilder(args);
             var channel = Channel.CreateUnbounded<string>();
             builder.Services.AddSingleton(channel.Reader);
