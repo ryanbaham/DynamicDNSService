@@ -21,6 +21,10 @@
             {
                 _logger.LogWarning("PUBLIC_IP_CHECK_FREQ_MINS is NULL, public IP check frequency will default to 5 minutes");
             }
+            else
+            {
+                _logger.LogInformation($"Public IP check frequency (PUBLIC_IP_CHECK_FREQ_MINS) is set to {_publicIPCheckFrequency} minutes.");
+            }
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
