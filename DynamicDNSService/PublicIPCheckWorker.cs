@@ -5,14 +5,22 @@
         private readonly ILogger<PublicIPCheckWorker> _logger;
         private readonly HttpClient _httpClient;
         private readonly ChannelWriter<string> _channelWriter;
+
+        private static string? _publicIPCheckFrequency = Environment.GetEnvironmentVariable("PUBLIC_IP_CHECK_FREQ_MINS");
+
         private string _lastIp;
-        private string _separator = new string('-',48);
 
         public PublicIPCheckWorker(ILogger<PublicIPCheckWorker> logger, ChannelWriter<string> channelWriter)
         {
+            //worker service DI config, comes in the box
             _logger = logger;
             _httpClient = new HttpClient();
             _channelWriter = channelWriter;
+
+            if (_publicIPCheckFrequency is null)
+            {
+                _logger.LogWarning("PUBLIC_IP_CHECK_FREQ_MINS is NULL, public IP check frequency will default to 5 minutes");
+            }
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -22,13 +30,11 @@
                 try
                 {
                     var ipInfo = await _httpClient.GetFromJsonAsync<IPInfo>("https://jsonip.com");
-                    _logger.LogInformation($"{_separator}{Environment.NewLine}jsonip.com returned {ipInfo.Ip}" +
-                                           $"{Environment.NewLine}{_separator}");
+                    _logger.LogInformation($"jsonip.com returned {ipInfo.Ip}");
 
                     if (ipInfo.Ip != _lastIp)
                     {
-                        _logger.LogWarning($"{_separator}{Environment.NewLine}IP changed from {_lastIp} to {ipInfo.Ip}" +
-                                           $"{Environment.NewLine}{_separator}");
+                        _logger.LogWarning($"IP changed from {_lastIp} to {ipInfo.Ip}");
                         await _channelWriter.WriteAsync(ipInfo.Ip, stoppingToken);
                         _lastIp = ipInfo.Ip;
                     }
@@ -38,7 +44,15 @@
                     _logger.LogError(ex, "Error checking IP");
                 }
 
-                await Task.Delay(TimeSpan.FromMinutes(5), stoppingToken);
+                if (int.TryParse(_publicIPCheckFrequency, out int checkFrequency))
+                {
+                    await Task.Delay(TimeSpan.FromMinutes(checkFrequency), stoppingToken);
+                }
+                else
+                {
+                    await Task.Delay(TimeSpan.FromMinutes(5), stoppingToken);
+                }
+
             }
         }
     }

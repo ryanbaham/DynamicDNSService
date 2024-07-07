@@ -13,6 +13,7 @@ namespace DynamicDNSService
         private static string _zone = Environment.GetEnvironmentVariable("DNSIMPLE_ZONE_NAME");
         private static string _zoneRecordName = Environment.GetEnvironmentVariable("DNSIMPLE_ZONE_RECORD_NAME");
 
+
         private Client _dnsimpleClient = new Client();
         private OAuth2Credentials _credentials;
 
@@ -24,13 +25,16 @@ namespace DynamicDNSService
 
         public DNSimpleZoneRecordUpdateWorker(ILogger<DNSimpleZoneRecordUpdateWorker> logger, ChannelReader<string> channelReader, IConfiguration configuration)
         {
+            //worker service DI config, comes in the box
             _logger = logger;
             _channelReader = channelReader;
             _configuration = configuration;
 
+            //configure DNSimple client and creds
             _credentials = new OAuth2Credentials(_apiKey);
             _dnsimpleClient.AddCredentials(_credentials);
 
+            //retrieve and store basic account and zone info
             _accountId = _dnsimpleClient.Identity.Whoami().Data.Account.Id;
             _zoneID = _dnsimpleClient.Zones.GetZone(_accountId, _zone).Data.Id.ToString();
             _zoneRecordID = _dnsimpleClient.Zones.ListZoneRecords(_accountId, _zoneID)
@@ -42,16 +46,20 @@ namespace DynamicDNSService
         {
             while (await _channelReader.WaitToReadAsync(stoppingToken))
             {
-                _logger.LogWarning("Public IP change detected, or this is service just started.");
+                //^^^ Watching for an actionable data. 
+                // Fires once at startup and then only if PublicIPCheckWorker pushes data into the channel.
+
+                _logger.LogWarning("Public IP change detected, or this service just started.");
+
                 while (_channelReader.TryRead(out var newIp))
                 {
                     try
                     {
-                        GetCurrentZoneRecord();
-                        
+                        GetCurrentZoneRecord(); // retrieve and store locally the current A record specified in Environment Variable
+
                         if (newIp != null && _currentZoneRecord.Content != newIp) 
                         {
-                            UpdateZoneRecord(newIp);
+                            UpdateZoneRecord(newIp); // if newIP isn't null and differs from current A record content, update A record specified in Environment Variable
                         }
                         else
                         {
@@ -69,17 +77,21 @@ namespace DynamicDNSService
 
         private void GetCurrentZoneRecord()
         {
-            _currentZoneRecord =  _dnsimpleClient.Zones.GetZoneRecord(_accountId, _zoneID, _zoneRecordID).Data;
+
+            _currentZoneRecord =  _dnsimpleClient.Zones.GetZoneRecord(_accountId, _zoneID, _zoneRecordID).Data; // ask DNSimple for current A record content
             _logger.LogInformation($"Zone Record {_currentZoneRecord.Name} has following configuration:{Environment.NewLine}"
                                     +JsonSerializer.Serialize(_currentZoneRecord, new JsonSerializerOptions { WriteIndented = true }));
         }
 
         private void UpdateZoneRecord(string ip)
         {
+
             var recordToUpdate = _currentZoneRecord;
             recordToUpdate.Content = ip;
-            recordToUpdate.Regions = null;
+            recordToUpdate.Regions = null; //DNSimple SDK doesn't handle this correctly for non-premium users, even when retrieved zone record already specifies "all regions".
+
             var response = _dnsimpleClient.Zones.UpdateZoneRecord(_accountId, _zoneID, _zoneRecordID, recordToUpdate);
+
             _logger.LogWarning($"Updated Zone Record {response.Data.Name} with IP {ip}.");
             
         }

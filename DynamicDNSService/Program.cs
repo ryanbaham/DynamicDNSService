@@ -6,10 +6,7 @@ namespace DynamicDNSService
     {
         public static void Main(string[] args)
         {
-            Console.WriteLine($"{new string('-',48)}{Environment.NewLine}" +
-                $" |||||||||||| Dynamic DNS Service |||||||||||||{Environment.NewLine}" +
-                $"{Environment.NewLine} A DNSimple A Record Updater Hack by Ryan Baham" +
-                $"{Environment.NewLine}{new string('-', 48)}");
+            Console.WriteLine("<----- Dynamic DNS Service is Starting ----->");
             var builder = Host.CreateApplicationBuilder(args);
             var channel = Channel.CreateUnbounded<string>();
             builder.Services.AddSingleton(channel.Reader);
