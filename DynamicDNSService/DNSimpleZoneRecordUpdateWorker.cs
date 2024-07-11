@@ -63,7 +63,7 @@ namespace DynamicDNSService
                         }
                         else
                         {
-                            _logger.LogWarning($"IP from Channel ({newIp}) is null or equals existing zone record value ({_currentZoneRecord.Content}).");
+                            _logger.LogWarning("IP from Channel ({updatedIP}) is null or equals existing zone record value ({currentZoneRecordInfo}).", newIp,_currentZoneRecord.Content);
                         }
                         
                     }
@@ -79,8 +79,7 @@ namespace DynamicDNSService
         {
 
             _currentZoneRecord =  _dnsimpleClient.Zones.GetZoneRecord(_accountId, _zoneID, _zoneRecordID).Data; // ask DNSimple for current A record content
-            _logger.LogInformation($"Zone Record {_currentZoneRecord.Name} has following configuration:{Environment.NewLine}"
-                                    +JsonSerializer.Serialize(_currentZoneRecord, new JsonSerializerOptions { WriteIndented = true }));
+            _logger.LogInformation("Zone Record {zoneRecordName} has following configuration:{currentZoneRecordContent}",_currentZoneRecord.Name, JsonSerializer.Serialize(_currentZoneRecord, new JsonSerializerOptions { WriteIndented = true }));
         }
 
         private void UpdateZoneRecord(string ip)
@@ -92,7 +91,7 @@ namespace DynamicDNSService
 
             var response = _dnsimpleClient.Zones.UpdateZoneRecord(_accountId, _zoneID, _zoneRecordID, recordToUpdate);
 
-            _logger.LogWarning($"Updated Zone Record {response.Data.Name} with IP {ip}.");
+            _logger.LogWarning("Updated Zone Record {response.Data.Name} with IP {ip}.", response.Data.Name, ip);
             
         }
     }

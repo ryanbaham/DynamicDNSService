@@ -23,7 +23,7 @@
             }
             else
             {
-                _logger.LogInformation($"Public IP check frequency (PUBLIC_IP_CHECK_FREQ_MINS) is set to {_publicIPCheckFrequency} minutes.");
+                _logger.LogInformation("Public IP check frequency (PUBLIC_IP_CHECK_FREQ_MINS) is set to {_publicIPCheckFrequency} minutes.", _publicIPCheckFrequency);
             }
         }
 
@@ -34,11 +34,11 @@
                 try
                 {
                     var ipInfo = await _httpClient.GetFromJsonAsync<IPInfo>("https://jsonip.com");
-                    _logger.LogInformation($"jsonip.com returned {ipInfo.Ip}");
+                    _logger.LogInformation("jsonip.com returned {ipInfo.Ip}", ipInfo.Ip);
 
                     if (ipInfo.Ip != _lastIp)
                     {
-                        _logger.LogWarning($"IP changed from {_lastIp} to {ipInfo.Ip}");
+                        _logger.LogWarning("IP changed from {_lastIp} to {ipInfo.Ip}", _lastIp, ipInfo.Ip);
                         await _channelWriter.WriteAsync(ipInfo.Ip, stoppingToken);
                         _lastIp = ipInfo.Ip;
                     }
